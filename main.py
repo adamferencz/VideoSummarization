@@ -37,12 +37,20 @@ def get_importance(video_name):
     big_contours_mul = []
     all_contours_mul = []
 
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")#DIVX
+    output = cv2.VideoWriter("./out/" + "diff_grey__" + video_name, fourcc, fps, (1280, 720))
+
     while cap.isOpened():
         contours = find_countours(frame1, frame2)
+
+        diff = cv2.absdiff(frame1, frame2)
+        gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
 
         big_contours_counter = 0
         all_contours_size = 0
         big_contours_size = 0
+
+        # cv2.drawContours(frame1, contours, -1, (0, 255, 0), 2)
 
         for contour in contours:
             all_contours_size += cv2.contourArea(contour)
@@ -51,6 +59,9 @@ def get_importance(video_name):
             else:
                 big_contours_counter += 1
                 big_contours_size += cv2.contourArea(contour)
+                # cv2.drawContours(frame1, contours, -1, (255, 0, 0), 2)
+
+        output.write(gray)
 
         big_contours_counts.append(big_contours_counter)
         all_contours_counts.append(len(contours))
@@ -69,6 +80,7 @@ def get_importance(video_name):
         sys.stdout.flush()
         curr_frame += 1
 
+    output.release()
     cap.release()
     print("\n")
     print("Video analysed.\n")
@@ -157,8 +169,6 @@ def create_video_summarization(video_name, mask, st):
             else:
                 writing = "None"
 
-        curr_frame += 1
-
         sys.stdout.write("\r Frame %s/%s  %s" % (curr_frame, frame_count, writing))
         sys.stdout.flush()
 
@@ -173,7 +183,7 @@ def create_video_summarization(video_name, mask, st):
 
 if __name__ == '__main__':
 
-    VIDEO_NAME = 'trening_prokiki.mp4'
+    VIDEO_NAME = 'workout1short.mp4'
     REDUCTION = 0.05
     SMA_SIZE = 60
     IMPORTANCE_METER = 'all_contours_sizes'
