@@ -6,6 +6,9 @@ import sys
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import time
+
+
 
 
 def find_countours(frame1, frame2):
@@ -191,12 +194,13 @@ def create_video_summarization(video_name, mask, st):
 
 
 if __name__ == '__main__':
+    start = time.time()
+    print("start timer for preprocesing")
 
     # evaluation_output path
     EVAL_OUTPUT_PATH = 'eval_file_0or1.np'
-
     # input video name - put the video in ./in/yourvideo.mp4
-    VIDEO_NAME = 'workout1short.mp4'
+    VIDEO_NAME = 'workout-last.mp4'
     REDUCTION = 0.05
     SMA_SIZE = 60
     IMPORTANCE_METER = 'all_contours_sizes'
@@ -219,9 +223,17 @@ if __name__ == '__main__':
 
     importance = load_importance(VIDEO_NAME)
 
+    end = time.time()
+    print(end - start)
+
     plot_two(importance, 'all_contours_counts', 'big_contours_counts', 'r', 'b')
     plot_two(importance, 'all_contours_sizes', 'big_contours_sizes', 'g', 'm')
     plot_two(importance, 'all_contours_mul', 'big_contours_mul', 'y', 'c')
+
+
+    start = time.time()
+    print("start timer for cutting")
+
 
     # Create highlight mask
     SMA, binary_cut_mask, visual_cut_mask = select_important_parts(importance, IMPORTANCE_METER, REDUCTION, SMA_SIZE)
@@ -236,3 +248,6 @@ if __name__ == '__main__':
 
     stamp = '_'+str(REDUCTION)+'_'+str(SMA_SIZE)+'_'+IMPORTANCE_METER+'_'
     create_video_summarization(VIDEO_NAME, binary_cut_mask, stamp)
+
+    end = time.time()
+    print(end - start)
