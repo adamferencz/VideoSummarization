@@ -131,9 +131,18 @@ def select_important_parts(imp, key, reduction, sma_size):
     sorted_sma = np.sort(sma)
     threshold = sorted_sma[int(len(sorted_sma) * (1 - reduction))]
 
-    # Remove extremes
-    extreme_threshold = sorted_sma[int(len(sorted_sma) * 0.998)]
-    sma = np.where(sma > extreme_threshold, 0, sma)
+    # # Remove extremes
+    # extreme_threshold = sorted_sma[int(len(sorted_sma) * 0.998)]
+    # sma = np.where(sma > extreme_threshold, 0, sma)
+
+    # Eval output
+    norm = np.copy(sma)
+    norm /= np.max(np.abs(sma), axis=0)
+    print(norm.shape)
+    np.savetxt(EVAL_OUTPUT_PATH, norm, fmt='%d')
+    plt.plot(norm)
+    plt.show()
+
 
     visual_mask = np.where(sma > threshold, threshold, 0)
     binary_mask = np.where(sma > threshold, True, False)
@@ -183,6 +192,10 @@ def create_video_summarization(video_name, mask, st):
 
 if __name__ == '__main__':
 
+    # evaluation_output path
+    EVAL_OUTPUT_PATH = 'eval_file_0or1.np'
+
+    # input video name - put the video in ./in/yourvideo.mp4
     VIDEO_NAME = 'workout1short.mp4'
     REDUCTION = 0.05
     SMA_SIZE = 60
@@ -212,6 +225,8 @@ if __name__ == '__main__':
 
     # Create highlight mask
     SMA, binary_cut_mask, visual_cut_mask = select_important_parts(importance, IMPORTANCE_METER, REDUCTION, SMA_SIZE)
+
+
 
     importance['SMA_contours_mul'] = SMA
     importance['visual_cut_mask'] = visual_cut_mask
